@@ -1,3 +1,6 @@
+# PE-Reborn mondrian selects a single independently validated Power HAL.
+# Do not install the archived Qualcomm V3 service or its taro XML hint table.
+ifneq ($(TARGET_DEVICE),mondrian)
 #Power product definitions
 PRODUCT_PACKAGES += android.hardware.power-service-qti
 PRODUCT_PACKAGES += android.hardware.power-impl
@@ -42,3 +45,5 @@ PRODUCT_COPY_FILES += vendor/qcom/opensource/power/config/crow/powerhint.xml:$(T
 else ifeq ($(TARGET_BOARD_PLATFORM),trinket)
 PRODUCT_COPY_FILES += vendor/qcom/opensource/power/config/trinket/powerhint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/powerhint.xml
 endif
+
+endif # TARGET_DEVICE != mondrian

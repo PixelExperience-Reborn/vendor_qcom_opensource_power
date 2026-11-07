@@ -34,7 +34,6 @@
 #define LOG_TAG "android.hardware.power-service-qti"
 
 #include "Power.h"
-#include "PowerHintSession.h"
 
 #include <android-base/file.h>
 #include <android-base/logging.h>
@@ -182,14 +181,16 @@ ndk::ScopedAStatus Power::createHintSession(int32_t tgid, int32_t uid,
         *_aidl_return = nullptr;
         return ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
     }
-    *_aidl_return = setPowerHintSession();
-    return ndk::ScopedAStatus::ok();
+    // No working per-thread governor feedback exists in this legacy HAL.
+    // Never advertise an ADPF session that silently discards workload data.
+    *_aidl_return = nullptr;
+    return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
 ndk::ScopedAStatus Power::getHintSessionPreferredRate(int64_t* outNanoseconds) {
     LOG(INFO) << "Power getHintSessionPreferredRate";
-    *outNanoseconds = getSessionPreferredRate();
-    return ndk::ScopedAStatus::ok();
+    // Match the Power AIDL contract when hint sessions are unsupported.
+    return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
 }  // namespace impl

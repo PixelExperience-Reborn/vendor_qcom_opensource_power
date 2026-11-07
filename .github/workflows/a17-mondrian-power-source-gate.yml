@@ -1,0 +1,32 @@
+name: AOSP17 mondrian Qualcomm Power HAL safety gate
+on:
+  push:
+    branches:
+      - port/a17-mondrian-power-aidl-adpf-guard-20261107
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  power-source-and-make-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify archived QTI Power HAL does not claim fake ADPF
+        run: python3 tests/check_android17_mondrian_power.py
+      - name: Verify pinned PE-Reborn AOSP17 manifest and 135-repository matrix
+        run: |
+          set -euo pipefail
+          git clone -q --depth 1 --branch port/a17-aosp17-manifest-20261102 \
+            https://github.com/PixelExperience-Reborn/manifest.git "$RUNNER_TEMP/pe-a17-manifest"
+          cd "$RUNNER_TEMP/pe-a17-manifest"
+          test "$(git rev-parse HEAD)" = "4e001321caabde2d18ed9397d2457a8ffaa10aec"
+          python3 tools/validate_aosp17_base_profiles.py
+          python3 -m unittest discover -s tools -p test_aosp17_manifest_entrypoint.py -v
+          python3 tools/validate_135_repository_matrix.py
+      - name: Scope disclosure
+        run: |
+          echo "PASS is GNU Make and source-only. NOT a built Android 17 Power HAL."
+          echo "Blockers: independent device tree, AOSP17 Power AIDL integration, ADPF governor,"
+          echo "Xiaomi SM8475 vendor perf ABI, VINTF/FCM, SELinux, CTS/VTS, thermals, real mondrian."
