@@ -1,5 +1,8 @@
 LOCAL_PATH := $(call my-dir)
 
+# Never register this archive QTI Power HAL for PE-Reborn mondrian.
+# A single independently verified modern AIDL provider must own IPower.
+ifneq ($(TARGET_DEVICE),mondrian)
 ifeq ($(call is-vendor-board-platform,QCOM),true)
 
 include $(CLEAR_VARS)
@@ -25,8 +28,7 @@ LOCAL_SRC_FILES := \
     list.c \
     hint-data.c \
     Power.cpp \
-    main.cpp \
-    PowerHintSession.cpp
+    main.cpp
 
 LOCAL_CFLAGS += -Wall -Wextra -Werror
 
@@ -88,3 +90,4 @@ LOCAL_VINTF_FRAGMENTS := power.xml
 
 include $(BUILD_EXECUTABLE)
 endif
+endif # TARGET_DEVICE != mondrian
