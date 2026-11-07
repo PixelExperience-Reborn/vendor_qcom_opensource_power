@@ -1,0 +1,22 @@
+name: AOSP17 mondrian Qualcomm Power HAL safety gate
+on:
+  push:
+    branches:
+      - port/a17-mondrian-power-aidl-adpf-guard-20261107
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  power-source-and-make-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify archived QTI Power HAL does not claim fake ADPF
+        run: python3 tests/check_android17_mondrian_power.py
+      - name: Scope disclosure
+        run: |
+          echo "PASS is GNU Make and source-only. NOT a built Android 17 Power HAL."
+          echo "Blockers: independent device tree, AOSP17 Power AIDL integration, ADPF governor,"
+          echo "Xiaomi SM8475 vendor perf ABI, VINTF/FCM, SELinux, CTS/VTS, thermals, real mondrian."
